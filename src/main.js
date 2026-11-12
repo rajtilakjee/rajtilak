@@ -1,6 +1,6 @@
 import './styles.css';
 import { renderMarkdown } from './markdown.js';
-import { allTags, catalog, findPost, neighbors } from './posts.js';
+import { catalog, findPost, neighbors } from './posts.js';
 
 const SITE = 'Rajtilak Bhattacharjee';
 
@@ -31,8 +31,7 @@ function shell() {
             <path class="mark-bar" d="M10 13h12" fill="none" stroke="#e39a72" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
           <span>
-            <strong>Rajtilak</strong>
-            <span class="brand-sub">Tutorials</span>
+            <strong>Rajtilak Bhattacharjee</strong>
           </span>
         </a>
         <form class="search-form" role="search" data-search-form>
@@ -50,7 +49,7 @@ function shell() {
     </header>
     <div class="shell">
       <aside class="sidebar" id="sidebar">
-        <nav class="sidebar-nav" aria-label="All tutorials"></nav>
+        <nav class="sidebar-nav" aria-label="Tutorials"></nav>
       </aside>
       <main id="content" tabindex="-1" data-outlet></main>
     </div>
@@ -171,75 +170,40 @@ function buildPage(path, filters) {
   };
 }
 
+function activeSeriesSlug(filters) {
+  const groups = catalog();
+  if (filters.series && groups.some((series) => series.slug === filters.series)) return filters.series;
+  return groups[0]?.slug || '';
+}
+
 function buildHome(filters) {
-  const selected = filters.series ? catalog().find((series) => series.slug === filters.series) : null;
+  const seriesSlug = activeSeriesSlug(filters);
+  const scoped = { ...filters, series: seriesSlug };
   const groups = catalog()
     .map((series) => ({
       ...series,
-      posts: series.posts.filter((post) => matches(post, filters)),
+      posts: series.posts.filter((post) => matches(post, scoped)),
     }))
-    .filter((series) => series.posts.length && (!filters.series || series.slug === filters.series));
-  const count = groups.reduce((sum, series) => sum + series.posts.length, 0);
-  const tags = allTags();
-  const heading = selected ? selected.title : 'Tutorials';
-  const dek = selected
-    ? selected.description
-    : 'Short lessons, with the mathematics written out.';
-  const kicker = selected ? 'Series' : SITE;
-  const intro =
-    selected?.intro && !filters.q && !filters.tag
-      ? `<div class="series-intro prose">${renderMarkdown(selected.intro).html}</div>`
-      : '';
-  const chips = tags.length
-    ? `<div class="chips">${tags
-        .map((tag) => {
-          const on = filters.tag.toLowerCase() === tag.toLowerCase();
-          const href = homeHref({ q: filters.q, tag: on ? '' : tag, series: filters.series });
-          return `<a class="chip" href="${esc(href)}"${on ? ' aria-current="true"' : ''}>${esc(tag)}</a>`;
-        })
-        .join('')}${
-        filters.tag || filters.series
-          ? `<a class="show-all" href="${esc(homeHref({ q: filters.q }))}">Show all</a>`
-          : ''
-      }</div>`
-    : '';
-  const list = count
-    ? `${selected ? '' : ''}${groups
-        .map((series) => {
-          const scoped = Boolean(selected);
-          return `<section class="series-block">
-            ${
-              scoped
-                ? ''
-                : `<div class="series-head">
-                    <div>
-                      <h2><a href="${esc(homeHref({ series: series.slug }))}">${esc(series.title)}</a></h2>
-                      ${series.description ? `<p class="series-dek">${esc(series.description)}</p>` : ''}
-                    </div>
-                    <span class="series-count">${series.posts.length}</span>
-                  </div>`
-            }
+    .filter((series) => series.slug === seriesSlug && series.posts.length);
+  const list = groups.length
+    ? groups
+        .map(
+          (series) => `<section class="series-block">
+            <h2 class="sr-only">${esc(series.title)}</h2>
             <ol class="lessons">
               ${series.posts.map((post) => lessonRow(post)).join('')}
             </ol>
-          </section>`;
-        })
-        .join('')}`
-    : emptyHtml(filters);
+          </section>`,
+        )
+        .join('')
+    : emptyHtml(scoped);
 
   return {
-    title: `${heading} · ${SITE}`,
-    description: dek || 'Mathematics tutorials by Rajtilak Bhattacharjee.',
-    html: `<header class="home-head">
-        <p class="kicker">${esc(kicker)}</p>
-        <h1>${esc(heading)}</h1>
-        ${dek ? `<p class="dek">${esc(dek)}</p>` : ''}
-        ${chips}
-      </header>
-      ${intro}
-      ${count ? `<p class="count">${count} ${count === 1 ? 'tutorial' : 'tutorials'}</p>` : ''}
-      ${list}
-      <footer class="colophon"><p>${esc(SITE)} · Markdown tutorials, typeset with MathJax.</p></footer>`,
+    title: SITE,
+    description: 'Mathematics tutorials by Rajtilak Bhattacharjee.',
+    html: `<h1 class="sr-only">${esc(SITE)}</h1>
+      ${filters.tag ? `<p class="filter-note"><a class="show-all" href="${esc(homeHref({ q: filters.q, series: filters.series }))}">Show all</a></p>` : ''}
+      ${list}`,
   };
 }
 
@@ -308,7 +272,7 @@ function sidebarHtml() {
       </section>`,
     )
     .join('');
-  return `<a class="side-home" href="/">All tutorials</a>${blocks}`;
+  return blocks;
 }
 
 function tocNav(toc) {
@@ -411,14 +375,8 @@ function paintCurrent() {
       ? target.pathname.slice(0, -1)
       : target.pathname;
     let current = false;
-    if (anchor.classList.contains('side-home')) {
-      current = path === '/' && !filters.q && !filters.tag && !filters.series;
-    } else if (target.searchParams.get('series')) {
-      current =
-        path === '/' &&
-        filters.series === target.searchParams.get('series') &&
-        !filters.tag &&
-        !filters.q;
+    if (target.searchParams.get('series')) {
+      current = path === '/' && target.searchParams.get('series') === activeSeriesSlug(filters);
     } else {
       current = targetPath === path;
     }

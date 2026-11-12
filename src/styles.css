@@ -138,17 +138,9 @@ body {
   display: block;
   font-family: var(--display);
   font-weight: 640;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   letter-spacing: -0.03em;
-  line-height: 1;
-}
-.brand-sub {
-  display: block;
-  margin-top: 0.18rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
+  line-height: 1.15;
 }
 
 .search-form { margin-left: auto; width: min(22rem, 42vw); }
@@ -207,7 +199,6 @@ html[data-theme='dark'] .icon-moon { display: none; }
   scrollbar-width: thin;
 }
 
-.side-home,
 .series-label,
 .byline,
 .count,
@@ -220,19 +211,8 @@ html[data-theme='dark'] .icon-moon { display: none; }
   font-family: var(--sans);
 }
 
-.side-home {
-  display: inline-block;
-  margin-bottom: 0.4rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-decoration: none;
-}
-.side-home[aria-current='page'],
-.side-home:hover { color: var(--ink); }
-
 .side-series { margin: 1.15rem 0 0; }
+.side-series:first-child { margin-top: 0.15rem; }
 .side-series ul { list-style: none; margin: 0.35rem 0 0; padding: 0; }
 .side-series a {
   display: block;
@@ -262,13 +242,11 @@ html[data-theme='dark'] .icon-moon { display: none; }
 .series-label a:hover,
 .series-label a[aria-current='page'] { color: var(--ink); }
 
-.home-head,
 .series-block,
 .series-intro,
 .count,
 .empty,
 main > .colophon { margin-left: 0; max-width: 46rem; }
-.home-head { margin-bottom: 1.6rem; }
 .article-head {
   margin-bottom: 1.5rem;
   padding-bottom: 1.25rem;
@@ -354,7 +332,8 @@ h1 {
   font-size: 0.85rem;
 }
 
-.series-block { margin-top: 1.6rem; }
+.series-block + .series-block { margin-top: 1.75rem; }
+.filter-note { margin: 0 0 1rem; }
 .series-head {
   display: flex;
   justify-content: space-between;
@@ -390,9 +369,8 @@ h1 {
   color: var(--ink-soft);
 }
 
-.lessons { list-style: none; margin: 0.7rem 0 0; padding: 0; }
-.lessons li { border-top: 1px solid var(--line); }
-.lessons li:last-child { border-bottom: 1px solid var(--line); }
+.lessons { list-style: none; margin: 0; padding: 0; }
+.lessons li { border-bottom: 1px solid var(--line); }
 .lessons a {
   display: grid;
   grid-template-columns: 2.4rem minmax(0, 1fr);
@@ -714,7 +692,7 @@ mjx-container[display='true'] {
   .contents-btn { display: inline-flex; }
   .search-form { width: min(16rem, 34vw); }
   .prose h2::before, .prose h3::before { content: none; }
-  .brand-sub { display: none; }
+  .brand strong { font-size: 0.92rem; }
   h1 { font-size: clamp(2.1rem, 9vw, 3rem); }
   .pager { grid-template-columns: 1fr; }
   .pager .next { text-align: left; align-items: flex-start; }
