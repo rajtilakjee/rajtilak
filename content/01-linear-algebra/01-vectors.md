@@ -288,3 +288,78 @@ This is the fundamental idea behind **Cosine Similarity**.
 In Machine Learning, we can use this mathematical concept to compare users, recommend courses, find similar documents, and even compare words based on their numerical representations.
 
 We have just taken our first step towards understanding how Linear Algebra helps machines find relationships in data.
+
+### In Practice: Implementing It with Python
+
+So far, we have calculated the dot products, magnitudes, and angles manually. But in real-world Machine Learning applications, we rarely perform these calculations by hand. Libraries like **NumPy** make the process much simpler.
+
+Let's implement what we have learned using Python.
+
+**Step 1: Define the vectors**
+
+First, we represent the learning interests of our three students as NumPy arrays.
+
+```python
+import numpy as np
+
+# Student interests: [Mathematics, Programming, Physics]
+a = np.array([5, 4, 1])  # Student A
+b = np.array([4, 5, 2])  # Student B
+c = np.array([1, 2, 5])  # Student C
+```
+
+**Step 2: Calculate the angle between two vectors**
+
+Next, we write a function that calculates the angle between any two vectors using the dot product.
+
+```python
+def get_angle_between_vectors(v1, v2):
+    dot_product = np.dot(v1, v2)
+
+    norm_v1 = np.linalg.norm(v1)
+    norm_v2 = np.linalg.norm(v2)
+
+    cos_theta = dot_product / (norm_v1 * norm_v2)
+
+    angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
+    angle_deg = np.degrees(angle_rad)
+
+    return angle_deg
+```
+
+Here is what the NumPy functions do:
+
+- `np.dot()` calculates the dot product of two vectors.
+- `np.linalg.norm()` calculates the magnitude of a vector.
+- `np.arccos()` calculates the inverse cosine, giving us the angle in radians.
+- `np.degrees()` converts the angle from radians to degrees.
+- `np.clip()` prevents minor floating-point errors from producing invalid inverse cosine inputs.
+
+**Step 3: Compare the students**
+
+Now, let's calculate the angles between Student A and the other two students.
+
+```python
+angle_ab = get_angle_between_vectors(a, b)
+angle_ac = get_angle_between_vectors(a, c)
+
+print(f"Angle between Student A and B: {angle_ab:.1f} degrees")
+print(f"Angle between Student A and C: {angle_ac:.1f} degrees")
+```
+
+**Output:**
+
+```text
+Angle between Student A and B: 15.0 degrees
+Angle between Student A and C: 59.5 degrees
+```
+
+### What Does This Tell Us?
+
+Our Python implementation produces the same results as our manual calculations.
+
+Student A and Student B have an angle of approximately $15^\circ$, indicating that their learning interests are closely aligned. Student A and Student C, on the other hand, have an angle of approximately $59.5^\circ$, indicating considerably different interests.
+
+What we have accomplished is quite interesting: **we have converted the problem of comparing students' learning preferences into a mathematical problem of measuring the angle between two vectors.**
+
+This is one of the ways Linear Algebra makes it possible for Machine Learning algorithms to identify relationships and patterns in data.
