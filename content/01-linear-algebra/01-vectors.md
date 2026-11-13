@@ -2,48 +2,289 @@
 title: Vectors
 description: One object, drawn as an arrow or written as a list.
 date: 2026-02-02
-tags: [vectors, dot-product]
+tags: [vectors, dot-product, geomatry]
 ---
 
-A vector in $\mathbb{R}^n$ is an ordered list of real numbers. Draw that list as an arrow from the origin and you get a second picture of the same object: how far to travel along each axis. The algebra lives on the list. The geometry lives on the arrow. A good calculation lets you move between them without changing the object.
+At the heart of Linear Algebra lies the concept of **vectors**. And that is where we will begin our journey.
 
-## Addition and scaling
+A vector is traditionally defined as _a quantity that has both magnitude and direction_. This definition works well in physics, where vectors describe things like velocity, force, and displacement.
 
-Addition is componentwise. In the plane,
+But here is an interesting question: _How does this concept apply to Machine Learning?_
+
+After all, datasets are made up of numbers and features. They don't inherently have directions like physical quantities do. So, what exactly makes vectors so important in Machine Learning?
+
+This is where our approach will be a little different from that of conventional Linear Algebra tutorials. Rather than starting with abstract mathematical definitions and memorising properties, we will build an intuition for vectors from the ground up, exploring what they represent, how they work, and, most importantly, why they are fundamental to Machine Learning.
+
+Our goal is not simply to learn Linear Algebra as a mathematical subject, but to understand it through the lens of Machine Learning.
+
+## The Motivating Problem: Finding Similarity Between Students
+
+Imagine an online learning platform wants to recommend courses to students based on their learning interests.
+
+The platform tracks how interested each student is in three subjects: Mathematics, Programming, and Physics. Each interest is rated on a scale of 1 to 5.
+
+Consider three students:
+- Student A: [5, 4, 1] (loves Mathematics, likes Programming, has little interest in Physics).
+- Student B: [4, 5, 2] (likes Mathematics and Programming, has some interest in Physics).
+- Student C: [1, 2, 5] (has little interest in Mathematics and Programming, loves Physics).
+
+We can represent each student's interests as a vector in a 3D space, where each dimension represents one subject.
+
+## The problem: The platform wants to determine which student has interests most similar to Student A.
+
+How can we quantify this similarity mathematically?
+
+This is where the dot product comes into play. By calculating the dot product between Student A's vector and the vectors of Students B and C, we can begin exploring how vectors help us measure relationships between data points.
+
+## What is a Dot Product?
+
+The **dot product**, also known as the *scalar product*, is an algebraic operation that takes two vectors of the same dimension and produces a single scalar (a real number).
+
+For two vectors $\mathbf{a}, \mathbf{b} \in \mathbb{R}^n$, their dot product is defined as the sum of the products of their corresponding components.
+
+Mathematically:
 
 $$
-(a_1, a_2) + (b_1, b_2) = (a_1 + b_1,\ a_2 + b_2).
+\boxed{
+\mathbf{a} \cdot \mathbf{b}
+=
+\sum_{i=1}^{n} a_i b_i
+}
 $$
 
-To add the arrows, place the tail of the second at the head of the first. The sum is the arrow from the start of the first to the end of the second, the diagonal of the parallelogram they span.
+Where:
 
-Scaling by a real number $c$ multiplies every component. The arrow stretches by $|c|$, and it reverses direction when $c$ is negative.
+- $\mathbf{a}$ and $\mathbf{b}$ are vectors in an $n$-dimensional real vector space.
+- $a_i$ and $b_i$ represent the $i$-th components of the respective vectors.
+- $n$ is the number of dimensions.
+- The resulting value is a scalar.
 
-> [!definition] Linear combination
-> A linear combination of $\mathbf{v}$ and $\mathbf{w}$ is any vector $c\mathbf{v} + d\mathbf{w}$ with real coefficients $c$ and $d$.
+### Example
 
-## The dot product
-
-The dot product sends two lists to a number:
-
-$$
-\mathbf{a}\cdot\mathbf{b} = a_1 b_1 + \cdots + a_n b_n.
-$$
-
-When both arrows are nonzero it also reads the angle $\theta$ between them,
+Consider two vectors:
 
 $$
-\mathbf{a}\cdot\mathbf{b} = \|\mathbf{a}\|\,\|\mathbf{b}\|\cos\theta,
+\mathbf{a} =
+\begin{bmatrix}
+2\\
+3\\
+4
+\end{bmatrix},
+\qquad
+\mathbf{b} =
+\begin{bmatrix}
+1\\
+5\\
+2
+\end{bmatrix}
 $$
 
-where $\|\mathbf{a}\| = \sqrt{\mathbf{a}\cdot\mathbf{a}}$ is the length. The sign of the product tells you whether the angle is acute or obtuse. The product is zero when the arrows are perpendicular.
+Their dot product is:
 
-> [!example] A right angle in the plane
-> $(1, 2)\cdot(-2, 1) = -2 + 2 = 0$, so these two arrows meet at a right angle.
+$$
+\begin{aligned}
+\mathbf{a} \cdot \mathbf{b}
+&= (2 \times 1) + (3 \times 5) + (4 \times 2)\\
+&= 2 + 15 + 8\\
+&= 25
+\end{aligned}
+$$
 
-## Coordinates are a choice
+Notice that the result is a single number, not another vector.
 
-The list $(1, 2)$ depends on a basis. Rotate the axes and the same arrow gets different components. The length, the angle, and the dot product do not. Any orthonormal basis reports the same dot product, because the dot product is measuring the arrows, not the grid you drew under them.
+### Geometric Interpretation
 
-> [!note]
-> If a quantity changes when you rotate the axes, it is tied to the coordinates. A single component will change. A length will not.
+The dot product can also be defined in terms of the magnitudes of two vectors and the angle between them:
+
+$$
+\mathbf{a} \cdot \mathbf{b}
+=
+\|\mathbf{a}\| \|\mathbf{b}\| \cos\theta
+$$
+
+Where:
+
+- $\|\mathbf{a}\|$ is the magnitude (length) of vector $\mathbf{a}$.
+- $\|\mathbf{b}\|$ is the magnitude (length) of vector $\mathbf{b}$.
+- $\theta$ is the angle between the two vectors.
+
+This gives us an interesting insight:
+
+- If the angle is less than $90^\circ$, the dot product is positive.
+- If the angle is exactly $90^\circ$, the dot product is zero.
+- If the angle is greater than $90^\circ$, the dot product is negative.
+
+## Solving the Problem: Measuring Similarity Between Students
+
+Let's calculate the actual angles between the students' interest vectors to understand how similar their learning preferences are.
+
+**Inputs:**
+
+- Student A: $\mathbf{a} = [5, 4, 1]$
+- Student B: $\mathbf{b} = [4, 5, 2]$
+- Student C: $\mathbf{c} = [1, 2, 5]$
+
+Each component represents a student's interest in Mathematics, Programming, and Physics, respectively.
+
+---
+
+### Case 1: Comparing Students with Similar Interests (A and B)
+
+**Step 1: Calculate the dot product $\mathbf{a} \cdot \mathbf{b}$.**
+
+$$
+\begin{aligned}
+\mathbf{a} \cdot \mathbf{b}
+&= (5 \times 4) + (4 \times 5) + (1 \times 2)\\
+&= 20 + 20 + 2\\
+&= 42
+\end{aligned}
+$$
+
+**Step 2: Calculate the magnitudes $\|\mathbf{a}\|$ and $\|\mathbf{b}\|$.**
+
+$$
+\begin{aligned}
+\|\mathbf{a}\|
+&= \sqrt{5^2 + 4^2 + 1^2}\\
+&= \sqrt{25 + 16 + 1}\\
+&= \sqrt{42}\\
+&\approx 6.48
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\|\mathbf{b}\|
+&= \sqrt{4^2 + 5^2 + 2^2}\\
+&= \sqrt{16 + 25 + 4}\\
+&= \sqrt{45}\\
+&\approx 6.71
+\end{aligned}
+$$
+
+**Step 3: Calculate the angle $\theta$ between the vectors.**
+
+Recall the geometric definition of the dot product:
+
+$$
+\mathbf{a} \cdot \mathbf{b}
+=
+\|\mathbf{a}\|\|\mathbf{b}\|\cos\theta
+$$
+
+Rearranging the equation:
+
+$$
+\cos\theta =
+\frac{\mathbf{a}\cdot\mathbf{b}}
+{\|\mathbf{a}\|\|\mathbf{b}\|}
+$$
+
+Substituting our values:
+
+$$
+\begin{aligned}
+\cos\theta
+&= \frac{42}{\sqrt{42}\times\sqrt{45}}\\
+&\approx 0.9661
+\end{aligned}
+$$
+
+Taking the inverse cosine:
+
+$$
+\begin{aligned}
+\theta &= \cos^{-1}(0.9661)\\
+&\approx 15.0^\circ
+\end{aligned}
+$$
+
+**Result:** The angle between Student A's and Student B's interest vectors is approximately **15 degrees**.
+
+This is a relatively small angle, indicating that their learning preferences are quite similar. Both students show strong interests in Mathematics and Programming, with comparatively less interest in Physics.
+
+---
+
+### Case 2: Comparing Students with Different Interests (A and C)
+
+**Step 1: Calculate the dot product $\mathbf{a} \cdot \mathbf{c}$.**
+
+$$
+\begin{aligned}
+\mathbf{a} \cdot \mathbf{c}
+&= (5 \times 1) + (4 \times 2) + (1 \times 5)\\
+&= 5 + 8 + 5\\
+&= 18
+\end{aligned}
+$$
+
+**Step 2: Calculate the magnitude $\|\mathbf{c}\|$.**
+
+We already calculated $\|\mathbf{a}\| = \sqrt{42}$.
+
+$$
+\begin{aligned}
+\|\mathbf{c}\|
+&= \sqrt{1^2 + 2^2 + 5^2}\\
+&= \sqrt{1 + 4 + 25}\\
+&= \sqrt{30}\\
+&\approx 5.48
+\end{aligned}
+$$
+
+**Step 3: Calculate the angle $\theta$ between the vectors.**
+
+Using the same geometric definition:
+
+$$
+\cos\theta =
+\frac{\mathbf{a}\cdot\mathbf{c}}
+{\|\mathbf{a}\|\|\mathbf{c}\|}
+$$
+
+Substituting our values:
+
+$$
+\begin{aligned}
+\cos\theta
+&= \frac{18}{\sqrt{42}\times\sqrt{30}}\\
+&\approx 0.5071
+\end{aligned}
+$$
+
+Taking the inverse cosine:
+
+$$
+\begin{aligned}
+\theta &= \cos^{-1}(0.5071)\\
+&\approx 59.5^\circ
+\end{aligned}
+$$
+
+**Result:** The angle between Student A's and Student C's interest vectors is approximately **59.5 degrees**.
+
+This is a considerably larger angle than the one we obtained when comparing Students A and B. Student C has a strong interest in Physics but relatively little interest in Mathematics and Programming.
+
+---
+
+### What Have We Learned?
+
+Let's put our results side by side:
+
+| Comparison | Dot Product | Angle |
+|---|---:|---:|
+| Student A and B | 42 | $15.0^\circ$ |
+| Student A and C | 18 | $59.5^\circ$ |
+
+The difference in angles gives us a way to quantify how closely two students' interests align.
+
+- A smaller angle indicates that the vectors point in more similar directions.
+- A larger angle indicates that the vectors point in less similar directions.
+- An angle of $90^\circ$ indicates that the vectors are perpendicular.
+
+This is the fundamental idea behind **Cosine Similarity**.
+
+In Machine Learning, we can use this mathematical concept to compare users, recommend courses, find similar documents, and even compare words based on their numerical representations.
+
+We have just taken our first step towards understanding how Linear Algebra helps machines find relationships in data.
