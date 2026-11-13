@@ -2,7 +2,7 @@
 title: Vectors
 description: One object, drawn as an arrow or written as a list.
 date: 2026-02-02
-tags: [vectors, dot-product, geomatry]
+tags: [vectors, dot-product, geometry]
 ---
 
 At the heart of Linear Algebra lies the concept of **vectors**. And that is where we will begin our journey.
